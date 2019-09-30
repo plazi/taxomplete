@@ -7,12 +7,14 @@
         <script src="./taxomplete.js"></script>
     </head>
     <body>
-        <label for="species-input">Species</label> <input type="text" id="species-input"/>
+        <label for="name">Name</label> <input type="text" id="name"/><br/>
+        <label for="name">Age</label> <input type="text" id="age"/><br/>
+        <label for="species-input">Species</label> <input type="text" id="species-input"/><br/>
         <script>
             let input = document.getElementById("species-input");
             let taxomplete = new Taxomplete(input);
             taxomplete.action = function(value) {
-                alert(value);
+                alert("Hi "+ document.getElementById("name").value+", you are one the youngest "+value+" using this site!");
             }
         </script>
     </body>
