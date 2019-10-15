@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/plazi/taxomplete#readme",
   "dependencies": {
-    "@retog/sparql-client": "^1.0.1",
+    "@retog/sparql-client": "^1.0.2",
     "awesomplete": "^1.1.5"
   },
   "devDependencies": {
