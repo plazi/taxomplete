@@ -13,7 +13,7 @@
             an [Awesomplete](https://leaverou.github.io/awesomplete/)'s awesome autocomplete.
         </p>
         <p>
-            In the following form the third field has taxomplete enabled.
+            In the following form the third field has taxomplete enabled, type a couple of characters to see the difference.
         </p>
         <label for="name">Name</label> <input type="text" id="name"/><br/>
         <label for="name">Age</label> <input type="text" id="age"/><br/>
@@ -25,5 +25,9 @@
                 alert("Hi "+ document.getElementById("name").value+", you are one the youngest "+value+" using this site!");
             }
         </script>
+        <h2>How does it work?</h2>
+        The Taxomplete widget executes SPARQL queries to the [LINDAS Linked Data Service](https://lindas-data.ch/) to
+        query for species in the Plazi dataset, while you type. Taxomplete is developed by [FactsMission](https://factsmission.com/) and 
+        available on [Github](https://github.com/plazi/taxomplete/tree/master).
     </body>
 </html>    
