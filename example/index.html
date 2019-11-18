@@ -10,7 +10,7 @@
         <label for="species-input">Species</label> <input type="text" id="species-input"/>
         <script>
             let input = document.getElementById("species-input");
-            let taxomplete = new Taxomplete(input);
+            let taxomplete = new Taxomplete(input, "https://plazi.factsmission.org/sparql");
             taxomplete.action = function(value) {
                 alert(value);
             }

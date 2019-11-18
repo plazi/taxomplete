@@ -5,7 +5,11 @@ export default class Taxomplete {
 
     constructor(input, sparqlEndpoint) {
         if (sparqlEndpoint) {
-            this._sparqlEndpoint = sparqlEndpoint;
+            if (sparqlEndpoint.getSparqlResultSet) {
+                this._sparqlEndpoint = sparqlEndpoint;
+            } else {
+                this._sparqlEndpoint = new SparqlEndpoint(sparqlEndpoint);
+            }
         } else {
             this._sparqlEndpoint = new SparqlEndpoint("https://lindas-data.ch/sparql");
         }
@@ -100,11 +104,9 @@ export default class Taxomplete {
                     "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
                     "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
                     "SELECT DISTINCT ?genus WHERE {\n" +
-                    " GRAPH <https://linked.opendata.swiss/graph/plazi> {\n" +
                     "?sub dwc:genus ?genus .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
                     "FILTER REGEX(?genus, \"^" + prefix + "\",\"i\")\n" +
-                    " }\n" +
                     "} ORDER BY UCASE(?genus) LIMIT 10";
             console.log("spe", self._sparqlEndpoint);
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
@@ -118,12 +120,10 @@ export default class Taxomplete {
                     "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
                     "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
                     "SELECT DISTINCT ?species WHERE {\n" +
-                    " GRAPH <https://linked.opendata.swiss/graph/plazi> {\n" +
                     "?sub dwc:genus \"" + genus + "\" .\n" +
                     "?sub dwc:species ?species .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
                     "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
-                    " }\n" +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 ss = json.results.bindings.map(binding => binding.species.value);
@@ -136,12 +136,10 @@ export default class Taxomplete {
                     "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
                     "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
                     "SELECT DISTINCT ?genus ?species WHERE {\n" +
-                    " GRAPH <https://linked.opendata.swiss/graph/plazi> {\n" +
                     "?sub dwc:genus ?genus .\n" +
                     "?sub dwc:species ?species .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
                     "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
-                    " }\n" +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 cs = json.results.bindings.map(binding => binding.genus.value + " " + binding.species.value);
