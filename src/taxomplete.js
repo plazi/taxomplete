@@ -15,9 +15,6 @@ export default class Taxomplete {
         }
         this._input = input;
         let previousValue = input.value;
-        let gs = [];
-        let cs = [];
-        let ss = [];
 
         let self = this;
 
@@ -44,23 +41,23 @@ export default class Taxomplete {
         });
 
         function populateSuggestions() {
-            if (input.value.toString().indexOf(" ") === -1) {
-                previousValue = input.value;
-                Promise.all([getGenusSuggestions(input.value), getCombinedSuggestions(input.value)]).then(v => {
-                    gs = gs.map(i => i + " ");
+            let value = input.value.toString();
+            previousValue = value;
+            if (value.indexOf(" ") === -1) {
+                Promise.all([getGenusSuggestions(value), getCombinedSuggestions(value)]).then(r => {
+                    let gs = r[0].map(i => i + " ");
+                    let cs = r[1];
                     awesomplete.list = gs.concat(cs);
                 });
             } else {
-                previousValue = input.value;
-                let speciesIn = input.value.toString().substr(input.value.toString().indexOf(" ") + 1);
-                let genusIn = input.value.toString().substring(0, input.value.toString().indexOf(" "));
-                if (speciesIn.length > 0) {
-                    getSpeciesSuggestions(speciesIn, genusIn).then(values => {
-                        awesomplete.list = ss.map(i => genusIn + " " + i);
+                let parts = value.split(" ").filter((s) => s.length > 0)
+                if (parts.length > 1) {
+                    getSpeciesSuggestions(parts[1], parts[0]).then(ss => {
+                        awesomplete.list = ss.map(i => parts[0] + " " + i);
                     });
                 } else {
-                    getSpeciesSuggestions("", genusIn).then(values => {
-                        awesomplete.list = ss.map(i => genusIn + " " + i);
+                    getSpeciesSuggestions("", parts[0]).then(ss => {
+                        awesomplete.list = ss.map(i => parts[0] + " " + i);
                     });
                 }
             }
@@ -108,10 +105,8 @@ export default class Taxomplete {
                     "?sub rdf:type dwcfp:TaxonName.\n" +
                     "FILTER REGEX(?genus, \"^" + prefix + "\",\"i\")\n" +
                     "} ORDER BY UCASE(?genus) LIMIT 10";
-            console.log("spe", self._sparqlEndpoint);
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                gs = json.results.bindings.map(binding => binding.genus.value);
-                return true;
+                return json.results.bindings.map(binding => binding.genus.value);
             });
         }
 
@@ -126,8 +121,7 @@ export default class Taxomplete {
                     "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                ss = json.results.bindings.map(binding => binding.species.value);
-                return true;
+                return json.results.bindings.map(binding => binding.species.value);
             });
         }
 
@@ -142,8 +136,7 @@ export default class Taxomplete {
                     "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
-                cs = json.results.bindings.map(binding => binding.genus.value + " " + binding.species.value);
-                return true;
+                return json.results.bindings.map(binding => binding.genus.value + " " + binding.species.value);
             });
         }
     }
