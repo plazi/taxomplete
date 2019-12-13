@@ -11,7 +11,7 @@ export default class Taxomplete {
                 this._sparqlEndpoint = new SparqlEndpoint(sparqlEndpoint);
             }
         } else {
-            this._sparqlEndpoint = new SparqlEndpoint("https://lindas-data.ch/sparql");
+            this._sparqlEndpoint = new SparqlEndpoint("https://treatment.ld.plazi.org/sparql");
         }
         this._input = input;
         let previousValue = input.value;
@@ -100,9 +100,11 @@ export default class Taxomplete {
             let query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                     "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
                     "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
+                    "PREFIX tp: <https://vocab.plazi.org/taxomplete/>\n" +
                     "SELECT DISTINCT ?genus WHERE {\n" +
                     "?sub dwc:genus ?genus .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
+                    "?sub tp:genusPrefix \"" + prefix.toLowerCase().substr(0,2) + "\".\n" +
                     "FILTER REGEX(?genus, \"^" + prefix + "\",\"i\")\n" +
                     "} ORDER BY UCASE(?genus) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
@@ -114,10 +116,12 @@ export default class Taxomplete {
             let query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                     "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
                     "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
+                    "PREFIX tp: <https://vocab.plazi.org/taxomplete/>\n" +
                     "SELECT DISTINCT ?species WHERE {\n" +
                     "?sub dwc:genus \"" + genus + "\" .\n" +
                     "?sub dwc:species ?species .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
+                    (prefix.length > 1 ? "?sub tp:speciesPrefix \"" + prefix.toLowerCase().substr(0,2) + "\".\n" : "") +
                     "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
@@ -129,10 +133,12 @@ export default class Taxomplete {
             let query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                     "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
                     "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
+                    "PREFIX tp: <https://vocab.plazi.org/taxomplete/>\n" +
                     "SELECT DISTINCT ?genus ?species WHERE {\n" +
                     "?sub dwc:genus ?genus .\n" +
                     "?sub dwc:species ?species .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
+                    (prefix.length > 1 ? "?sub tp:speciesPrefix \"" + prefix.toLowerCase().substr(0,2) + "\".\n" : "") +
                     "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
