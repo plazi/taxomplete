@@ -97,6 +97,7 @@ export default class Taxomplete {
          * @returns A promise for an array of matching genera
          */
         function getGenusSuggestions(prefix) {
+            console.log(self);
             let query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                     "PREFIX dwc: <http://rs.tdwg.org/dwc/terms/>\n" +
                     "PREFIX dwcfp: <http://filteredpush.org/ontologies/oa/dwcFP#>\n" +
@@ -104,8 +105,7 @@ export default class Taxomplete {
                     "SELECT DISTINCT ?genus WHERE {\n" +
                     "?sub dwc:genus ?genus .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
-                    "?sub tp:genusPrefix \"" + prefix.toLowerCase().substr(0,2) + "\".\n" +
-                    "FILTER REGEX(?genus, \"^" + prefix + "\",\"i\")\n" +
+                    self.genusFilter(prefix) +
                     "} ORDER BY UCASE(?genus) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 return json.results.bindings.map(binding => binding.genus.value);
@@ -121,8 +121,7 @@ export default class Taxomplete {
                     "?sub dwc:genus \"" + genus + "\" .\n" +
                     "?sub dwc:species ?species .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
-                    (prefix.length > 1 ? "?sub tp:speciesPrefix \"" + prefix.toLowerCase().substr(0,2) + "\".\n" : "") +
-                    "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
+                    self.speciesFilter(prefix) +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 return json.results.bindings.map(binding => binding.species.value);
@@ -138,13 +137,43 @@ export default class Taxomplete {
                     "?sub dwc:genus ?genus .\n" +
                     "?sub dwc:species ?species .\n" +
                     "?sub rdf:type dwcfp:TaxonName.\n" +
-                    (prefix.length > 1 ? "?sub tp:speciesPrefix \"" + prefix.toLowerCase().substr(0,2) + "\".\n" : "") +
-                    "FILTER REGEX(?species, \"^" + prefix + "\",\"i\")\n" +
+                    self.speciesFilter(prefix) +
                     "} ORDER BY UCASE(?species) LIMIT 10";
             return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
                 return json.results.bindings.map(binding => binding.genus.value + " " + binding.species.value);
             });
         }
+    }
+
+    speciesFilter(prefix) {
+        return this.filterPattern("species", prefix);
+    }
+
+    genusFilter(prefix) {
+        return this.filterPattern("genus", prefix);
+    }
+
+    basicFilterPattern(propPart, prefix) {
+        return "FILTER REGEX(?"+propPart+", \"^" + prefix + "\",\"i\")\n";
+    }
+
+    filterPattern(propPart, prefix) {
+        let result = "";
+        if (prefix.length > 3) {
+            result += "?sub tp:"+propPart+"Prefix4 \"" + prefix.toLowerCase().substr(0,4) + "\".\n";
+            result += this.basicFilterPattern(propPart, prefix);
+        } else {
+            if (prefix.length > 2) {
+                result += "?sub tp:"+propPart+"Prefix3 \"" + prefix.toLowerCase().substr(0,3) + "\".\n";
+            } else {
+                if (prefix.length > 1) {
+                    result += "?sub tp:"+propPart+"Prefix2 \"" + prefix.toLowerCase().substr(0,2) + "\".\n";
+                } else {
+                    result += this.basicFilterPattern(propPart, prefix);
+                }    
+            }
+        }
+        return result;
     }
 
     lookup() {
