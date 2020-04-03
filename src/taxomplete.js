@@ -1,5 +1,6 @@
 import Awesomplete from "awesomplete";
 import SparqlEndpoint from "@retog/sparql-client";
+import debounce from "lodash/debounce";
 
 export default class Taxomplete {
 
@@ -22,12 +23,14 @@ export default class Taxomplete {
         awesomplete.maxItems = 15;
         awesomplete.sort = false;
 
-        input.onkeyup = (e) => {
+        input.addEventListener('keyup', debounce(afterTyping, 300));
+
+        function afterTyping (e) {
+            console.log('Request sent @ ' + Date.now())
             if ((input.value.length >= 2) && (e.key !== "Enter") && (input.value !== previousValue)) {
                 populateSuggestions();
             }
-            return true;
-        };
+        }
 
         input.addEventListener("awesomplete-selectcomplete", (e) => {
             let wordCount = input.value.trim().split(" ").length;
