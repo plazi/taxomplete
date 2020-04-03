@@ -14,6 +14,9 @@ export default class Taxomplete {
         } else {
             this._sparqlEndpoint = new SparqlEndpoint("https://treatment.ld.plazi.org/sparql");
         }
+
+        this.currentrequest = [ null, null, null ];
+
         this._input = input;
         let previousValue = input.value;
 
@@ -110,7 +113,13 @@ export default class Taxomplete {
                     "?sub rdf:type dwcfp:TaxonName.\n" +
                     self.genusFilter(prefix) +
                     "} ORDER BY UCASE(?genus) LIMIT 10";
-            return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
+            const controller = new AbortController()
+            const signal = controller.signal
+            if (self.currentrequest[0] && !self.currentrequest[0].signal.aborted) {
+                self.currentrequest[0].abort()
+            }
+            self.currentrequest[0] = controller
+            return self._sparqlEndpoint.getSparqlResultSet(query, { signal }).then(json => {
                 return json.results.bindings.map(binding => binding.genus.value);
             });
         }
@@ -126,7 +135,13 @@ export default class Taxomplete {
                     "?sub rdf:type dwcfp:TaxonName.\n" +
                     self.speciesFilter(prefix) +
                     "} ORDER BY UCASE(?species) LIMIT 10";
-            return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
+            const controller = new AbortController()
+            const signal = controller.signal
+            if (self.currentrequest[1] && !self.currentrequest[1].signal.aborted) {
+                self.currentrequest[1].abort()
+            }
+            self.currentrequest[1] = controller
+            return self._sparqlEndpoint.getSparqlResultSet(query, { signal }).then(json => {
                 return json.results.bindings.map(binding => binding.species.value);
             });
         }
@@ -142,7 +157,13 @@ export default class Taxomplete {
                     "?sub rdf:type dwcfp:TaxonName.\n" +
                     self.speciesFilter(prefix) +
                     "} ORDER BY UCASE(?species) LIMIT 10";
-            return self._sparqlEndpoint.getSparqlResultSet(query).then(json => {
+            const controller = new AbortController()
+            const signal = controller.signal
+            if (self.currentrequest[2] && !self.currentrequest[2].signal.aborted) {
+                self.currentrequest[2].abort()
+            }
+            self.currentrequest[2] = controller
+            return self._sparqlEndpoint.getSparqlResultSet(query, { signal }).then(json => {
                 return json.results.bindings.map(binding => binding.genus.value + " " + binding.species.value);
             });
         }
