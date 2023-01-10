@@ -13,7 +13,7 @@ Import the script as with:
 <script src="https://plazi.github.io/taxomplete/taxomplete.js"></script>
 ```
 
-You probly also want to use a css
+You probably also want to use a css
 ```
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.2/awesomplete.css" crossorigin="anonymous" />
 ```
