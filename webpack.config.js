@@ -1,8 +1,8 @@
 const webpack = require('webpack');
 const path = require('path');
-const fs = require('fs');
 
 module.exports = {
+  mode: 'production',
   entry: path.resolve(__dirname, 'src', 'taxomplete.js'),
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -62,6 +62,8 @@ module.exports = {
   ],
   devServer: {
     compress: true,
-    disableHostCheck: true
+    allowedHosts: "all",
+    static: "./example",
+    host: "0.0.0.0",
   }
 };
