@@ -1,0 +1,5 @@
+dist
+.devcontainer
+example
+.travis_publish
+.travis.yml

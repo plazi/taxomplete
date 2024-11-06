@@ -1,5 +1,5 @@
 import Awesomplete from "awesomplete";
-import SparqlEndpoint from "@retog/sparql-client";
+import { SparqlEndpoint } from "@plazi/synolib";
 import debounce from "lodash/debounce";
 
 export default class Taxomplete {
